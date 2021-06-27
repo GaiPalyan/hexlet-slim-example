@@ -1,0 +1,17 @@
+{
+    "name": "vagrant/hexlet-slim-example",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Gai Palyan",
+            "email": "chadreed020788@yandex.ru"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "slim/slim": "^4.8",
+        "slim/psr7": "^1.4",
+        "slim/http": "^1.2"
+    }
+}
