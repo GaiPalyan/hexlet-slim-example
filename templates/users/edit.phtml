@@ -1,0 +1,16 @@
+<form action="/users/<?=htmlspecialchars($user['id'])?>" method="post">
+    <input type="hidden" name="_METHOD" value="PATCH">
+    <div>
+        <label>
+            Name
+            <input type="text" name="user[name]" value="<?= htmlspecialchars($user['name'] ?? ''); ?>">
+        </label>
+        <?php if (isset($errors['nameMinLength'])): ?>
+        <div>
+            <?= $errors['nameMinLength'] ?>
+        </div>
+        <?php endif; ?>
+    </div>
+    <input type="submit" value="Edit">
+</form>
+<a href="/users/<?=htmlspecialchars($user['id'])?>">Back</a>

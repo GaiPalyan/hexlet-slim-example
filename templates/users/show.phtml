@@ -1,0 +1,16 @@
+<a href="/users">Пользователи</a>
+<?php foreach ($userInfo as $key => $value): ?>
+<div>
+    <?="{$key}: {$value}"?>
+</div>
+<?php endforeach ?>
+<a href="/users/<?= htmlspecialchars($userInfo['id']) ?>/edit">edit</a>
+<?php if (!empty($flash)): ?>
+    <ul>
+        <?php foreach ($flash as $messages): ?>
+            <?php foreach ($messages as $message): ?>
+                <li style="color: green"><?= $message ?></li>
+            <?php endforeach; ?>
+        <?php endforeach;?>
+    </ul>
+<?php endif; ?>

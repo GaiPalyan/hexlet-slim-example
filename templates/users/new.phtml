@@ -1,0 +1,39 @@
+<form action="/users" method="post">
+    <div>
+        <lavel>
+            Имя
+            <input type="text" name="user[name]" value="<?= htmlspecialchars($user['name']); ?>">
+        </lavel>
+        <?php if (isset($errors['nameMinLength'])) : ?>
+        <div>
+            Name
+            <?= $errors['nameMinLength'] ?>
+        </div>
+        <?php endif; ?>
+    </div>
+    <div>
+        <lavel>
+            Пароль
+            <input type="password" required name="user[password]" value="<?= htmlspecialchars($user['password']); ?>">
+        </lavel>
+        <?php if (isset($errors['passwordMinLength'])): ?>
+        <div style="color: red">
+            Password: <br>
+            <?= $errors['passwordMinLength'] ?>
+        </div>
+        <?php endif; ?>
+        <?php if (isset($errors['passwordContainNumbers'])): ?>
+            <div style="color: red">
+                <?= $errors['passwordContainNumbers'] ?>
+            </div>
+        <?php endif; ?>
+    </div>
+    <div>
+        <lavel>
+            Емеил
+            <input type="email" required name="user[email]" value="<?= htmlspecialchars($user['email']); ?>">
+        </lavel>
+    </div>
+    <input type="hidden" name="user[id]">
+    <input type="submit" value="Sign Up">
+</form>
