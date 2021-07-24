@@ -1,20 +1,14 @@
+<a href="/">Main</a><br>
 <a href="/users/new">New user</a>
 <form action="/users" method="get">
     <input type="search" name="term" value="<?= htmlspecialchars($term)?>"/>
     <input type="submit" value="Search" />
 </form>
-<?php if (!empty($flash)): ?>
-<ul>
-    <?php foreach ($flash as $messages): ?>
-       <?php foreach ($messages as $message): ?>
-        <li><?= $message ?></li>
-        <?php endforeach; ?>
-    <?php endforeach;?>
-</ul>
-<?php endif; ?>
-
+<?php require_once __DIR__ . DIRECTORY_SEPARATOR .'flashes.php' ?>
 <?php foreach ($users as $user): ?>
 <div>
-    <a href="/users/<?= htmlspecialchars($user['id']) ?>"><?= htmlspecialchars($user['name']) . htmlspecialchars($user['email']) ?>
+    <a href="/users/<?= htmlspecialchars($user['id']) ?>">
+        <?= htmlspecialchars($user['name']) . " " . htmlspecialchars($user['email']) ?>
 </div>
 <?php endforeach ?>
+

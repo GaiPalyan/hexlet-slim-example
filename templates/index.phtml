@@ -1,2 +1,35 @@
 <a href="/courses">Courses</a><br>
-<a href="/users">Users</a>
+<a href="/users">Users</a><br>
+
+<?php if (!isset($_SESSION['user'])): ?>
+<form action="/session" method="post">
+    <div>
+        <label>
+            Емеил
+            <input type="email" required name="user[email]" value="<?=htmlspecialchars($user['email'])?>">
+        </label>
+    </div>
+    <div>
+        <label>
+            Пароль
+            <input type="password" required name="user[password]" value="<?=htmlspecialchars($user['password'])?>">
+        </label>
+    </div>
+    <input type="submit" value="Sign in">
+</form>
+<?php else: ?>
+    <a href="/users/<?=htmlspecialchars($_SESSION['user']['id'])?>"><?=$_SESSION['user']['name']?></a>
+<form action="/session" method="post">
+    <input type="hidden" name="_METHOD" value="DELETE">
+    <input type="submit" value="Sign out">
+</form>
+<?php endif; ?>
+<?php if (!empty($flash)): ?>
+    <ul>
+        <?php foreach ($flash as $messages): ?>
+            <?php foreach ($messages as $message): ?>
+                <li><?= $message ?></li>
+            <?php endforeach; ?>
+        <?php endforeach;?>
+    </ul>
+<?php endif; ?>

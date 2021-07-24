@@ -26,10 +26,8 @@ class UserValidator
         if (mb_strlen($user['password']) < $this->options['passwordMinLength']) {
             $errors['passwordMinLength'] = 'to small';
         }
-        if ($this->options['passwordContainNumbers']) {
-            if (!$this->hasNumber($user['password'])) {
-                $errors['passwordContainNumbers'] = 'should contain at least one number';
-            }
+        if ($this->options['passwordContainNumbers'] && !$this->hasNumber($user['password'])) {
+            $errors['passwordContainNumbers'] = 'should contain at least one number';
         }
         return $errors;
     }

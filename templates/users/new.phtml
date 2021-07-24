@@ -1,9 +1,10 @@
+<a href="/users">Back</a>
 <form action="/users" method="post">
     <div>
-        <lavel>
+        <label>
             Имя
             <input type="text" name="user[name]" value="<?= htmlspecialchars($user['name']); ?>">
-        </lavel>
+        </label>
         <?php if (isset($errors['nameMinLength'])) : ?>
         <div>
             Name
@@ -12,10 +13,10 @@
         <?php endif; ?>
     </div>
     <div>
-        <lavel>
+        <label>
             Пароль
             <input type="password" required name="user[password]" value="<?= htmlspecialchars($user['password']); ?>">
-        </lavel>
+        </label>
         <?php if (isset($errors['passwordMinLength'])): ?>
         <div style="color: red">
             Password: <br>
@@ -29,10 +30,10 @@
         <?php endif; ?>
     </div>
     <div>
-        <lavel>
+        <label>
             Емеил
             <input type="email" required name="user[email]" value="<?= htmlspecialchars($user['email']); ?>">
-        </lavel>
+        </label>
     </div>
     <input type="hidden" name="user[id]">
     <input type="submit" value="Sign Up">

@@ -1,7 +1,7 @@
 <a href="/courses/new">New course</a>
 <a href="/">Back</a>
-<?php if (!empty($courses)): ?>
-<?php foreach ($courses as $course): ?>
+<?php if (!empty($courses['courses'])): ?>
+<?php foreach ($courses['courses'] as $course): ?>
 <div>
     <li>
     <?= htmlspecialchars($course['title'])?>

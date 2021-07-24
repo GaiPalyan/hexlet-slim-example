@@ -2,11 +2,12 @@
 
 namespace App;
 
+use Exception;
 use Faker\Factory;
 
 class Generator2
 {
-    public static function generate($count)
+    public static function generate($count): array
     {
         $range = range(1, $count - 2);
         $numbers = collect($range)->shuffle(1)->toArray();
@@ -40,8 +41,11 @@ class Generator2
         return $users;
     }
 
+    /**
+     * @throws Exception
+     */
     public function idGenerator($num1, $num2): int
     {
-        return mt_rand($num1, $num2);
+        return random_int($num1, $num2);
     }
 }
