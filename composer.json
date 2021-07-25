@@ -30,6 +30,7 @@
     },
     "bin": ["public/index.php"],
     "autoload": {
+        "files": ["src/Misc.php"],
         "psr-4": {"App\\": "src/"}
     }
 }

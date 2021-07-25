@@ -11,17 +11,14 @@ if (file_exists($autoloadPath1)) {
 
 use Slim\Middleware\MethodOverrideMiddleware;
 use function Symfony\Component\String\s;
+use function Src\Misc\decode;
 use Slim\Factory\AppFactory;
 use Tightenco\Collect\Support\Collection;
 use DI\Container;
 
 /* imitation databases */
-$filePath = '..' . DIRECTORY_SEPARATOR . 'DB' . DIRECTORY_SEPARATOR . 'userData.json';
-try {
-    $usersRepo = json_decode(file_get_contents($filePath), true, 512, JSON_THROW_ON_ERROR);
-} catch (JsonException $e) {
-}
 $repo = new App\CourseRepository();
+
 /* Create a container with flash messages and render templates */
 $container = new Container();
 $container->set('renderer', function () {
@@ -57,12 +54,11 @@ $app->get('/users/new', function ($request, $response) {
 })->setName('newUser');
 
 /* Route user list, search user by name */
-$app->get('/users', function ($request, $response) use ($usersRepo) {
+$app->get('/users', function ($request, $response) {
     $term = $request->getQueryParam('term');
 
-    $filteredUsers = collect($usersRepo)
-        ->merge(json_decode($request
-            ->getCookieParam('users', json_encode([])), true, 512, JSON_THROW_ON_ERROR))
+    $filteredUsers = collect(decode($request
+            ->getCookieParam('users', json_encode([]))))
         ->filter(
             fn($user) => empty($term) ? true : s($user['name'])->ignoreCase()->startsWith($term)
         );
@@ -72,10 +68,9 @@ $app->get('/users', function ($request, $response) use ($usersRepo) {
 })->setName('users');
 
 /* Route for getting user by id */
-$app->get('/users/{id}', function ($request, $response, $args) use ($usersRepo) {
-    $foundedUser = collect($usersRepo)
-        ->merge(json_decode($request
-            ->getCookieParam('users', json_encode([])), true, 512, JSON_THROW_ON_ERROR))
+$app->get('/users/{id}', function ($request, $response,array $args) {
+    $foundedUser = collect(decode($request
+            ->getCookieParam('users', json_encode([]))))
         ->firstWhere('id', $args['id']);
     $flash = $this->get('flash')->getMessages();
     if (empty($foundedUser)) {
@@ -86,7 +81,7 @@ $app->get('/users/{id}', function ($request, $response, $args) use ($usersRepo) 
 })->setName('user');
 
 /* Registration and validation route  */
-$app->post('/users', function ($request, $response) use ($usersRepo, $filePath, $router) {
+$app->post('/users', function ($request, $response) use ($router) {
     $validator = new App\UserValidator(['passwordContainNumbers' => true]);
     $user = $request->getParsedBodyParam('user');
     $hashedPassword = password_hash($user['password'], PASSWORD_DEFAULT);
@@ -94,13 +89,11 @@ $app->post('/users', function ($request, $response) use ($usersRepo, $filePath, 
     $user['id'] = $id;
     $errors = $validator->validate($user);
     if (!empty($user) && empty($errors)) {
-        $cookedUsers = json_decode($request
-            ->getCookieParam('users', json_encode([])), true, 512, JSON_THROW_ON_ERROR);
-        $users = collect($usersRepo)->merge($cookedUsers);
+        $users = collect(decode($request
+            ->getCookieParam('users', json_encode([]))));
         $user['password'] = $hashedPassword;
         $users[$id] = $user;
         $encodedUsers = json_encode($users, JSON_THROW_ON_ERROR);
-        file_put_contents($filePath, $encodedUsers);
         $this->get('flash')->addMessage('success', 'Registration successfully');
         $url = $router->urlFor('users');
         return $response->withHeader('Set-Cookie', "users={$encodedUsers}")->withRedirect($url, 302);
@@ -110,19 +103,22 @@ $app->post('/users', function ($request, $response) use ($usersRepo, $filePath, 
 });
 
 /* User delete route */
-$app->delete('/users/{id}', function ($request, $response, array $args) use ($usersRepo, $filePath, $router) {
-    $users = collect($usersRepo);
+$app->delete('/users/{id}', function ($request, $response, array $args) use ($router) {
+    $users = collect(decode($request
+        ->getCookieParam('users', json_encode([]))));
     $id = $args['id'];
     unset($users[$id]);
+    $encodedUsers = json_encode($users, JSON_THROW_ON_ERROR);
     $this->get('flash')->addMessage('success', 'User has been deleted');
-    file_put_contents($filePath, json_encode($users));
-    return $response->withRedirect($router->urlFor('users'));
+
+    return $response->withHeader('Set-Cookie', "users={$encodedUsers}")->withRedirect($router->urlFor('users'));
 });
 
 /* Edit form renderer */
-$app->get('/users/{id}/edit', function ($request, $response, array $args) use ($usersRepo) {
-    $user = collect($usersRepo)->firstWhere('id', $args['id']);
-
+$app->get('/users/{id}/edit', function ($request, $response, array $args) {
+    $user = collect(decode($request
+        ->getCookieParam('users', json_encode([]))))
+        ->firstWhere('id', $args['id']);
     $params = [
         'user' => $user,
         'errors' => [],
@@ -131,10 +127,10 @@ $app->get('/users/{id}/edit', function ($request, $response, array $args) use ($
 })->setName('editUser');
 
 /* User edit route */
-$app->patch('/users/{id}', function ($request, $response, array $args) use ($usersRepo, $filePath, $router) {
+$app->patch('/users/{id}', function ($request, $response, array $args) use ($router) {
     $id = $args['id'];
-    $user = collect($usersRepo)
-        ->merge(json_decode($request->getCookieParam('users', json_encode([])), true))
+    $user = collect(decode($request
+        ->getCookieParam('users', json_encode([]))))
         ->firstWhere('id', $id);
     $data = $request->getParsedBodyParam('user');
     $user['name'] = $data['name'] ?? null;
@@ -143,7 +139,6 @@ $app->patch('/users/{id}', function ($request, $response, array $args) use ($use
     if (empty($errors)) {
         $usersRepo[$id] = $user;
         $encodedUsers = json_encode($usersRepo);
-        file_put_contents($filePath, $encodedUsers);
 
         $this->get('flash')->addMessage('success', 'User has been updated');
         $url = $router->urlFor('user', ['id' => $user['id']]);
@@ -158,11 +153,13 @@ $app->patch('/users/{id}', function ($request, $response, array $args) use ($use
     return $this->get('renderer')->render($response, 'users/edit.phtml', $params);
 });
 /* Authentication  */
-$app->post('/session', function ($request, $response) use ($usersRepo) {
+$app->post('/session', function ($request, $response) {
     $data = $request->getParsedBodyParam('user');
     $password = $data['password'];
 
-    $matchedUser = collect($usersRepo)->firstWhere('email', $data['email']);
+    $matchedUser = collect(decode($request
+        ->getCookieParam('users', json_encode([]))))
+        ->firstWhere('email', $data['email']);
 
     $authentication = function ($userName) use ($password, $matchedUser) {
         $verified = password_verify($password, $matchedUser['password']) ?
